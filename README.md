@@ -1,6 +1,6 @@
 # Blobstorm! 🎮
 !!disclamer!! 
-If you cannot beat a certian part of the game do not ask me to make it easyer. The game is 100% completable, i have tested the entire game every part of it is completable.
+If you cannot beat a certian part of the game do not ask me to make it easyer. The game is 100% completable, I have tested the entire game every part of it is completable.
 
 A **browser arena shooter** built with [p5.js](https://p5js.org/).
  [Blobstorm on GitHub Pages](https://pwhy2013.github.io/Blobstorm/)

@@ -68,7 +68,7 @@ let upgradeOptions = [
         droneChoicePending = true;
         dronesOwned += 1;
       } else {
-        console.log("Drone limit reached!");
+        console.log("Drone limit reached");
  }}},
 ];
 
@@ -211,10 +211,7 @@ if (victoryCutsceneActive) {
   }
   
 score = max(0, score);
-player.position.add(player.velocity);
 
-// Add friction so the dash slows down
-player.velocity.mult(0.9);
 
   drawAmmoBar();
   // Enemies
@@ -408,6 +405,7 @@ class Player {
     this.magazineSize = 30;
     this.ammo = 30;
     this.bossSpawned = false;
+    this.lastMoveDir = createVector(1, 0); // default right
   }
   takeDamage(amount) {
     let reduced = amount;
@@ -418,21 +416,29 @@ class Player {
     this.health = max(0, this.health);
   }
   update() {
-    let move = createVector(0, 0);
-    if (keyIsDown(87)) move.y -= 1;
-    if (keyIsDown(83)) move.y += 1;
-    if (keyIsDown(65)) move.x -= 1;
-    if (keyIsDown(68)) move.x += 1;
-    if (move.mag() > 0) move.normalize().mult(this.speed);
-    this.position.add(move);
+let move = createVector(0, 0);
+
+if (keyIsDown(87)) move.y -= 1;
+if (keyIsDown(83)) move.y += 1;
+if (keyIsDown(65)) move.x -= 1;
+if (keyIsDown(68)) move.x += 1;
+
+if (move.mag() > 0) {
+  move.normalize().mult(this.speed);
+  this.lastMoveDir = move.copy().normalize(); // ⭐ STORE DIRECTION
+}
+
+this.position.add(move);
+
     this.aim();
     for (let i = this.drones.length - 1; i >= 0; i--) {
       // update drones, but skip removed-targets etc.
       let d = this.drones[i];
       if (d) d.update();
     }
-     this.position.add(this.velocity);
-    this.velocity.mult(0.9); // friction
+   this.position.add(this.velocity);
+   this.velocity.mult(0.8); 
+  
 
     // Handle invincibility timer
     if (this.isInvincible) {
@@ -496,8 +502,8 @@ class Player {
     isReloading = true;
     reloadStart = millis();
   }
-}
-
+  
+  }
   activateMultiShot() {
     this.multiShotActive = true;
   }
@@ -518,8 +524,8 @@ class Player {
     xpNeeded = this.level * 100; // ✅ recalc for next level
     this.bossSpawned = false;
   }
-}
-
+  }
+  
   
   upgradeWeapon() {
 
@@ -676,8 +682,8 @@ class Boss extends Enemy {
     super(x,y);
     this.position = createVector(width / 2, -200); // starts offscreen
     this.size = 180;
-    this.health = 1000000;
-    this.maxHealth = 1000000;
+    this.health = 100000;
+    this.maxHealth = 100000;
     this.entrySpeed = 2;
     this.phase = 0;
     this.active = false;
@@ -716,7 +722,7 @@ class Boss extends Enemy {
       for (let i = 0; i < this.phase; i++) {
         enemies.push(new NormalEnemy(random(100, width - 100), -50, enemySpeed * 1.3));
       }
-      this.minionTimer = 300 - this.phase * 60;
+      this.minionTimer = 240 - this.phase * 60;
     } else {
       this.minionTimer--;
     }
@@ -736,8 +742,8 @@ class Boss extends Enemy {
   shootAtPlayer() {
     if (!player) return;
 
-    let dx = player.x - this.position.x;
-    let dy = player.y - this.position.y;
+    let dx = player.position.x - this.position.x;
+    let dy = player.position.y - this.position.y;
     let angle = atan2(dy, dx);
     let speed = 5 + this.phase;
     let vx = cos(angle) * speed;
@@ -1527,6 +1533,7 @@ function handleDroneClick() {
 function keyReleased() {
   delete keys[key]; // mark the key as released
 }
+
 function keyPressed() {
   // --- SHOP TOGGLE ---
   if (key === "p" || key === "P") {
@@ -1560,39 +1567,40 @@ function keyPressed() {
     return;
   }
   
-  if (key === "e"|| key === "E") {
-  dashPlayer(player, createVector(mouseX, mouseY));
+  if (key === "v" || key === "V") {
+  dashPlayer(player);
 }
 
 }
-function dashPlayer(player, target, dashSpeed = 15, invincibilityDuration = 300) {
+
+function dashPlayer(player, dashSpeed = 25, invincibilityDuration = 300) {
   if (!player) return;
 
-  // Check cooldown
+  // cooldown check
   if (millis() - player.lastDashTime < player.dashCooldown) return;
 
-  // Dash direction
-  let direction = p5.Vector.sub(target, player.position).normalize();
+  let direction = player.lastMoveDir.copy();
 
-  // Apply dash velocity
+  // prevent zero vector dash
+  if (direction.mag() === 0) return;
+
+  // apply dash
   player.velocity = direction.mult(dashSpeed);
 
-  // Temporary invincibility
+  // invincibility
   player.isInvincible = true;
   player.invincibilityTimer = invincibilityDuration;
 
-  // Update last dash time
   player.lastDashTime = millis();
 
-  // Spawn dash particles along dash direction
+  // particles
   for (let i = 0; i < 8; i++) {
     let angle = direction.heading() + random(-PI / 6, PI / 6);
     let speed = random(2, 6);
     let vel = p5.Vector.fromAngle(angle).mult(speed);
-    particles.push(new Particle(player.position.x, player.position.y, vel));
+    particles.push(new Particle(player.position.x, player.position.y));
   }
 }
-
 
 function drawHelmet(style = "basic") {
   push();
@@ -1728,9 +1736,9 @@ function drawTitleScreen() {
   let by = height/2 - boxH/2 + 55;
   text("🕹️ Controls:", bx, by); by += 28;
   text("WASD - Move", bx, by); by += 22;
-  text("Mouse / left click - Shoot", bx, by); by += 22;
-  text("ESC - Pause / P - Shop", bx, by); by += 22;
-  text("E - Dash towards mouse", bx, by); by += 22;
+  text("left click / Space - Shoot", bx, by); by += 22;
+  text("P - Shop(It pauses the game)", bx, by); by += 22;
+  text("V - Dash", bx, by); by += 22;
 
   // --- Start Prompt ---
   textAlign(CENTER, CENTER);
@@ -1744,7 +1752,7 @@ function drawTitleScreen() {
   textStyle(NORMAL);
   linkX = width / 2;
   linkY = height - 50;
-  linkW = textWidth("Report bugs and issues here!");
+  linkW = textWidth("Report bugs and issues here");
   linkH = 16;
 
   // Change color on hover
@@ -1757,7 +1765,7 @@ function drawTitleScreen() {
     fill(100, 200, 255); // normal color
     noStroke();
   }
-  text("Report bugs and issues here!", linkX, linkY);
+  text("Report bugs and issues here", linkX, linkY);
 }
 
 function drawGameOverScreen() {

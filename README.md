@@ -22,7 +22,7 @@ A **free browser arena shooter** built with [p5.js](https://p5js.org/).
 * **WASD** – Move
 * **Mouse** – Aim
 * **Click** – Shoot
-* **E** - Dash towards your mouse
+* **V** - Dash 
 * Defeat enemies to gain XP, upgrade, and survive waves
 
 ---

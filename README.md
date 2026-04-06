@@ -1,8 +1,8 @@
 # Blobstorm! 🎮
-!!disclaimer!!
-Very hard, please do NOT crash out.
+!!disclamer!! 
+If you cannot beat a certian part of the game do not ask me to make it easyer. The game is 100% completable, i have tested the entire game every part of it is completable.
 
-A **free browser arena shooter** built with [p5.js](https://p5js.org/).
+A **browser arena shooter** built with [p5.js](https://p5js.org/).
  [Blobstorm on GitHub Pages](https://pwhy2013.github.io/Blobstorm/)
 
 ---

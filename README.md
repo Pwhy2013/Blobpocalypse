@@ -11,7 +11,6 @@ A **browser arena shooter** built with [p5.js](https://p5js.org/).
 
 * Fast-paced arena shooter action
 * Leveling system with upgrades
-* Boss fights every 10 levels
 * Unlockable drones to assist in battle
 * Particle effects, shop system, and more
 

@@ -1498,8 +1498,7 @@ function mousePressed() {
     handleDroneClick();
   }
     // Check if mouse clicked near the link
-  if (mouseX > linkX - linkW/2 && mouseX < linkX + linkW/2 &&
-      mouseY > linkY - linkH/2 && mouseY < linkY + linkH/2) {
+  if (mouseX > linkX - linkW/2 && mouseX < linkX + linkW/2 && mouseY > linkY - linkH/2 && mouseY < linkY + linkH/2 && startgame === false) {
     window.open(githubLink, "_blank");
   }
 }
